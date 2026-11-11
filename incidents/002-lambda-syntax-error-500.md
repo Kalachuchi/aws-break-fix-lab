@@ -1,4 +1,4 @@
-# 001: API returns 500 after Lambda code change
+# 002: API returns 500 after Lambda code change
 
 ## Symptom
 The incident list stopped loading on the site. Calling the API directly

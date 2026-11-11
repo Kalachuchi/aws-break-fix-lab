@@ -1,4 +1,4 @@
-# 002: CORS error when testing frontend on localhost
+# 001: CORS error when testing frontend on localhost
 
 ## Symptom
 The incident list was empty when opening the frontend at `http://localhost:8000`.
