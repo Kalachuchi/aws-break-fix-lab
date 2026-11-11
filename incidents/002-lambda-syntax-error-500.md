@@ -1,41 +1,40 @@
-# 002: CORS error when testing frontend on localhost
+# 001: API returns 500 after Lambda code change
 
 ## Symptom
-The incident list was empty when opening the frontend at `http://localhost:8000`.
-The live site on CloudFront worked fine.
+The incident list stopped loading on the site. Calling the API directly
+(`GET /incidents`) returned:
 
-The browser console showed:
+`{"message":"Internal Server Error"}` (HTTP 500)
 
-`Access to fetch at 'https://hcyf1vav0g.execute-api.us-east-1.amazonaws.com/incidents' from origin 'http://localhost:8000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+Both listing and creating incidents failed.
 
 ## Investigation
-1. Opened the browser console (F12) and found the CORS error above.
-   The network request itself returned HTTP 200, so the API was working.
-   The browser was blocking the response, not the server.
-2. Called the API from PowerShell. It returned data normally, which confirmed
-   the backend was fine (CORS only applies in browsers).
-3. Checked API Gateway (`bfl-incidents-http` → CORS). Allow-Origin only listed
-   `https://d29uwddf0jdpjp.cloudfront.net`.
-4. Remembered CORS had recently been tightened from `*` to the CloudFront
-   domain only, which removed access for any other origin, including localhost.
-5. Related: an earlier version of this issue happened when opening the page by
-   double-clicking the file. That sends `Origin: null`, which API Gateway never
-   allows. Fixed by serving the page with `python -m http.server 8000`.
+1. Confirmed the problem by calling the API URL directly. It returned HTTP 500,
+   so the issue was in the backend, not the frontend.
+2. A 500 from API Gateway with a Lambda integration usually means the Lambda
+   itself failed, so I checked the Lambda's logs.
+3. Opened CloudWatch Logs, log group `/aws/lambda/bfl-incidents-api`.
+4. Every request showed the same error:
+   `Runtime.UserCodeSyntaxError: Syntax error in module 'lambda_function': invalid syntax (lambda_function.py, line 23)`
+5. Line 23 was the new `"created_at"` field I had just added to the POST item.
+6. Checked the line above it and found `"status": "open"` was missing a
+   trailing comma.
 
 ## Root cause
-API Gateway's CORS settings only allowed the CloudFront origin. Requests from
-`http://localhost:8000` did not get an `Access-Control-Allow-Origin` header,
-so the browser blocked the page from reading the response.
+A Python syntax error (missing comma in a dictionary) was deployed to the
+Lambda. Python could not load the file at all, so every request failed,
+even the GET route that had not changed.
+
+The change was also made directly in the Lambda console instead of the repo,
+so it was never checked before deploying.
 
 ## Fix
-Added `http://localhost:8000` as a second allowed origin in API Gateway
-(`bfl-incidents-http` → CORS), keeping the CloudFront origin. Refreshed the
-local page and the incident list loaded.
+Added the missing comma after `"status": "open"`, redeployed the Lambda,
+and confirmed `GET /incidents` returned HTTP 200 with the incident list.
 
 ## Prevention
-- When tightening CORS, list every origin that still needs access
-  (production site and local dev).
-- Use separate dev and prod settings so localhost is never needed in production.
-- Remove `http://localhost:8000` from CORS once local development is done.
-- Remember CORS is a browser rule, not API security. Use throttling,
-  validation, and auth to protect the API.
+- Make code changes in the repo first, then deploy. The console should not be
+  the place where code is written.
+- Check syntax before deploying (for example `python -m py_compile lambda_function.py`).
+- After every deploy, test the API right away so errors are caught immediately.
+- Later: automate deploys (CloudFormation) so code always comes from the repo.
