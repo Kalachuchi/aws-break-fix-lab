@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         item = {
             "id": str(uuid.uuid4()),
             "title": data["title"],
-            "status": "open"
+            "status": "open",
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         table.put_item(Item=item)
