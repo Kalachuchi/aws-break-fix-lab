@@ -1,6 +1,6 @@
 # AWS Break & Fix Lab
 
-A hands-on lab for practicing Cloud Support troubleshooting. I built a small serverless app on AWS, break it on purpose the way real customers do, then diagnose and fix it using the same tools a support engineer would.
+A hands-on lab for practicing Cloud Support troubleshooting. I built a small app on AWS (a serverless web app plus an EC2 Linux server), break it on purpose the way real customers do, then diagnose and fix it using the same tools a support engineer would.
 
 ## The app: Incident Log
 A simple web app for logging support cases (symptom, root cause, fix). It's also the app that gets broken.
