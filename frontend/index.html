@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <title>Incident Log</title>
+</head>
+<body>
+  <h1>Incident Log</h1>
+  <ul id="list"></ul>
+
+  <script>
+    const API_URL = "https://hcyf1vav0g.execute-api.us-east-1.amazonaws.com";
+
+    async function loadIncidents() {
+      const res = await fetch(API_URL + "/incidents");
+      const incidents = await res.json();
+
+      const list = document.getElementById("list");
+      for (const incident of incidents) {
+        const li = document.createElement("li");
+        li.textContent = incident.title;
+        list.append(li);
+      }
+    }
+
+    loadIncidents();
+  </script>
+</body>
+</html>
