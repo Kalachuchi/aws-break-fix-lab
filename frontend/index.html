@@ -1,15 +1,37 @@
 <!doctype html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Incident Log</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; color: #222; }
+    main { max-width: 680px; margin: 40px auto; padding: 0 16px; }
+    form { display: grid; gap: 8px; background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #ddd; }
+    input, textarea, button { font: inherit; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #222; color: #fff; cursor: pointer; }
+    #error { color: #b00020; }
+    .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
+    .card h3 { margin: 0 0 4px; font-size: 16px; }
+    .date { color: #777; font-size: 13px; }
+    .card p { margin: 6px 0 0; font-size: 14px; }
+  </style>
 </head>
 <body>
-  <h1>Incident Log</h1>
-  <form id="form">
-    <input id="title" placeholder="Incident title" required>
-    <button type="submit">Log incident</button>
-  </form>
-  <ul id="list"></ul>
+  <main>
+    <h1>Incident Log</h1>
+
+    <form id="form">
+      <input id="title" placeholder="Title" maxlength="100" required>
+      <textarea id="symptom" placeholder="Symptom (what the customer sees)"></textarea>
+      <textarea id="root_cause" placeholder="Root cause"></textarea>
+      <textarea id="fix" placeholder="Fix"></textarea>
+      <button type="submit">Log incident</button>
+      <p id="error"></p>
+    </form>
+
+    <div id="list"></div>
+  </main>
 
   <script>
     const API_URL = "https://hcyf1vav0g.execute-api.us-east-1.amazonaws.com";
@@ -19,28 +41,58 @@
       const incidents = await res.json();
 
       const list = document.getElementById("list");
-      for (const incident of incidents) {
-        const li = document.createElement("li");
+      list.innerHTML = "";
+      for (const incident of incidents.reverse()) {
+        const card = document.createElement("div");
+        card.className = "card";
+
         const date = incident.created_at
           ? new Date(incident.created_at).toLocaleString()
           : "no date";
-        li.textContent = date + " - " + incident.title;
-        list.append(li);
+
+        const h3 = document.createElement("h3");
+        h3.textContent = incident.title;
+        const when = document.createElement("div");
+        when.className = "date";
+        when.textContent = date + " · " + (incident.status || "open");
+        card.append(h3, when);
+
+        for (const [label, key] of [["Symptom", "symptom"], ["Root cause", "root_cause"], ["Fix", "fix"]]) {
+          if (incident[key]) {
+            const p = document.createElement("p");
+            p.textContent = label + ": " + incident[key];
+            card.append(p);
+          }
+        }
+        list.append(card);
       }
     }
 
     document.getElementById("form").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const title = document.getElementById("title").value;
+      const error = document.getElementById("error");
+      error.textContent = "";
 
-      await fetch(API_URL + "/incidents", {
+      const body = {
+        title: document.getElementById("title").value,
+        symptom: document.getElementById("symptom").value,
+        root_cause: document.getElementById("root_cause").value,
+        fix: document.getElementById("fix").value
+      };
+
+      const res = await fetch(API_URL + "/incidents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title })
+        body: JSON.stringify(body)
       });
 
-      document.getElementById("title").value = "";
-      document.getElementById("list").innerHTML = "";
+      if (!res.ok) {
+        const data = await res.json();
+        error.textContent = data.error || "Something went wrong";
+        return;
+      }
+
+      document.getElementById("form").reset();
       loadIncidents();
     });
 
