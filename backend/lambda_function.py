@@ -15,10 +15,20 @@ def lambda_handler(event, context):
         return {"statusCode": 200, "body": json.dumps(items)}
 
     if method == "POST":
-        data = json.loads(event["body"])
+        data = json.loads(event.get("body") or "{}")
+        title = data.get("title", "").strip()
+
+        if not title:
+            return {"statusCode": 400, "body": json.dumps({"error": "title is required"})}
+        if len(title) > 100:
+            return {"statusCode": 400, "body": json.dumps({"error": "title is too long (max 100)"})}
+
         item = {
             "id": str(uuid.uuid4()),
-            "title": data["title"],
+            "title": title,
+            "symptom": data.get("symptom", "")[:500],
+            "root_cause": data.get("root_cause", "")[:500],
+            "fix": data.get("fix", "")[:500],
             "status": "open",
             "created_at": datetime.now(timezone.utc).isoformat()
         }
