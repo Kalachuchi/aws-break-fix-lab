@@ -25,9 +25,18 @@ incidents/   Support-style write-ups, one per scenario
 ```
 
 ## Incidents
+Sample incident reports
 | # | Scenario | Services | Status |
 |---|---|---|---|
-| 000 | Unexpected WAF charges from a disabled CloudFront distribution | Billing, WAF, CloudFront, CloudTrail | Resolved |
+| [000](incidents/000-unexpected-waf-charges.md) | Unexpected WAF charges from a disabled CloudFront distribution | Billing, WAF, CloudFront, CloudTrail | Resolved |
+| [001](incidents/001-cors-error-on-localhost.md) | CORS error when testing the frontend on localhost | API Gateway, CloudFront | Resolved |
+| [002](incidents/002-lambda-syntax-error-500.md) | API returns 500 after a Lambda code change | Lambda, CloudWatch Logs | Resolved |
 
 ## Status
 In progress.
+
+- [x] Working app: DynamoDB, Lambda, API Gateway, S3 + CloudFront
+- [ ] CloudFormation (one command to deploy or reset)
+- [ ] Break scenarios + randomizer
+- [ ] EC2 + Linux scenarios
+- [ ] Cognito login, delete, and resolve
