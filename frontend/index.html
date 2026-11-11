@@ -5,6 +5,10 @@
 </head>
 <body>
   <h1>Incident Log</h1>
+  <form id="form">
+    <input id="title" placeholder="Incident title" required>
+    <button type="submit">Log incident</button>
+  </form>
   <ul id="list"></ul>
 
   <script>
@@ -17,10 +21,28 @@
       const list = document.getElementById("list");
       for (const incident of incidents) {
         const li = document.createElement("li");
-        li.textContent = incident.title;
+        const date = incident.created_at
+          ? new Date(incident.created_at).toLocaleString()
+          : "no date";
+        li.textContent = date + " - " + incident.title;
         list.append(li);
       }
     }
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+
+      await fetch(API_URL + "/incidents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title })
+      });
+
+      document.getElementById("title").value = "";
+      document.getElementById("list").innerHTML = "";
+      loadIncidents();
+    });
 
     loadIncidents();
   </script>
