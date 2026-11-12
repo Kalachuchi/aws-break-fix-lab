@@ -31,6 +31,7 @@ Sample incident reports
 | [000](incidents/000-unexpected-waf-charges.md) | Unexpected WAF charges from a disabled CloudFront distribution | Billing, WAF, CloudFront, CloudTrail | Resolved |
 | [001](incidents/001-cors-error-on-localhost.md) | CORS error when testing the frontend on localhost | API Gateway, CloudFront | Resolved |
 | [002](incidents/002-lambda-syntax-error-500.md) | API returns 500 after a Lambda code change | Lambda, CloudWatch Logs | Resolved |
+| [003](incidents/003-lambda-accessdenied-hardcoded-table.md) | Lambda AccessDenied after moving to CloudFormation | Lambda, IAM, DynamoDB, CloudFormation | Resolved |
 
 ## Deploy it yourself
 The whole app is one CloudFormation stack (`infra/template.yaml`). You need the AWS CLI set up in `us-east-1`.
