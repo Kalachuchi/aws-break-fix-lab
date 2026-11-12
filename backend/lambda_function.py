@@ -1,10 +1,11 @@
 from datetime import datetime, timezone
 import json
+import os
 import uuid
 import boto3
 
+table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
 
-table = boto3.resource("dynamodb").Table("bfl-incidents")
 
 def lambda_handler(event, context):
     method = event["requestContext"]["http"]["method"]

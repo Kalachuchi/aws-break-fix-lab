@@ -36,3 +36,15 @@ Resources:
                       - dynamodb:PutItem
                       - dynamodb:Scan
                     Resource: !GetAtt IncidentsTable.Arn
+  IncidentsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-api"
+      Runtime: python3.14
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 3
+      Code: ../backend
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref IncidentsTable
