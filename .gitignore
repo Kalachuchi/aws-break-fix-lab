@@ -14,6 +14,7 @@ venv/
 
 # Build / packaging
 *.zip
+packaged.yaml
 .aws-sam/
 node_modules/
 
