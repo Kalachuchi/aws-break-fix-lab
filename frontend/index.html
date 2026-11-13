@@ -11,6 +11,7 @@
     input, textarea, button { font: inherit; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
     button { background: #222; color: #fff; cursor: pointer; }
     #error { color: #b00020; }
+    .load-error { background: #fdecea; color: #8a1c13; border: 1px solid #f5c2bd; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
     .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
     .card h3 { margin: 0 0 4px; font-size: 16px; }
     .date { color: #777; font-size: 13px; }
@@ -36,8 +37,33 @@
   <script>
     const API_URL = "https://ft1sjctenf.execute-api.us-east-1.amazonaws.com";
 
+    function showLoadError(message) {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      const p = document.createElement("p");
+      p.className = "load-error";
+      p.textContent = message;
+      list.append(p);
+    }
+
     async function loadIncidents() {
-      const res = await fetch(API_URL + "/incidents");
+      let res;
+      try {
+        res = await fetch(API_URL + "/incidents");
+      } catch {
+        showLoadError("Couldn't reach the server. Check your connection and try again.");
+        return;
+      }
+
+      if (res.status === 429) {
+        showLoadError("Too many requests (429). Please wait a moment and refresh.");
+        return;
+      }
+      if (!res.ok) {
+        showLoadError("Couldn't load incidents (" + res.status + "). Please try again later.");
+        return;
+      }
+
       const incidents = await res.json();
 
       const list = document.getElementById("list");
