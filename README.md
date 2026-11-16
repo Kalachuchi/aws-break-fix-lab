@@ -34,6 +34,7 @@ Sample incident reports
 | [003](incidents/003-lambda-accessdenied-hardcoded-table.md) | Lambda AccessDenied after moving to CloudFormation | Lambda, IAM, DynamoDB, CloudFormation | Resolved |
 | [004](incidents/004-lambda-throttled-503.md) | Incident list empty, API returns 503 (Lambda throttled) | Lambda, CloudWatch, CloudTrail | Resolved |
 | [005](incidents/005-wrong-table-name-env-var.md) | Incident list fails with 500 after a config change (wrong TABLE_NAME) | Lambda, IAM, CloudWatch, CloudTrail | Resolved |
+| [006](incidents/006-api-cannot-invoke-lambda.md) | API returns 500, but Lambda shows no logs and no invocations | API Gateway, Lambda, CloudWatch, CloudTrail | Resolved |
 
 ## Deploy it yourself
 The whole app is one CloudFormation stack (`infra/template.yaml`). You need the AWS CLI set up in `us-east-1`.
